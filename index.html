@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kept It</title>
+<style>
+:root{
+  --sage:#91a98f; --sage-dark:#607b63; --sage-pale:#eef3ed;
+  --cream:#faf9f5; --ink:#29322b; --muted:#747b75; --white:#fff;
+  --line:#e2e6e1; --gold:#c5a66a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:820px;margin:auto;padding:28px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.brand{font-family:Georgia,serif;font-size:29px;font-weight:500}
+.brand span{color:var(--sage-dark)}
+.small{color:var(--muted);font-size:13px}
+.hero{background:var(--sage-pale);border:1px solid #dce6da;border-radius:24px;padding:28px;text-align:center;margin-bottom:18px}
+.hero .eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:11px;color:var(--sage-dark);font-weight:700}
+.hero h1{font-family:Georgia,serif;font-size:42px;margin:8px 0 3px;font-weight:500}
+.hero p{margin:0;color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:15px}
+.stat b{display:block;font-size:20px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:21px}
+.card h2{font-family:Georgia,serif;font-size:22px;font-weight:500;margin:0 0 5px}
+.card p{font-size:13px;color:var(--muted);margin:0 0 17px}
+label{font-size:12px;font-weight:650;display:block;margin:13px 0 6px}
+input,select,textarea{width:100%;border:1px solid #d9ded9;border-radius:11px;padding:12px;background:#fff;color:var(--ink);font:inherit;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--sage-dark);box-shadow:0 0 0 3px #91a98f22}
+textarea{resize:vertical;min-height:68px}
+button{border:0;border-radius:12px;padding:12px 15px;font-weight:700;cursor:pointer;font:inherit}
+.primary{background:var(--sage-dark);color:white;width:100%;margin-top:16px}
+.primary:hover{filter:brightness(.95)}
+.toggle{display:grid;grid-template-columns:1fr 1fr;background:#f1f3f0;border-radius:12px;padding:3px}
+.toggle button{background:transparent;color:var(--muted)}
+.toggle button.active{background:white;color:var(--ink);box-shadow:0 1px 4px #00000012}
+.hidden{display:none}
+.history{grid-column:1/-1}
+.entry{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry-title{font-weight:650}
+.entry-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.amount{font-weight:750;color:var(--sage-dark);white-space:nowrap;margin-left:12px}
+.empty{text-align:center;color:var(--muted);padding:24px 5px;font-size:14px}
+.goal{margin-top:15px}
+.goalbar{height:9px;background:#e7ebe6;border-radius:99px;overflow:hidden;margin-top:8px}
+.goalfill{height:100%;width:0;background:var(--sage-dark);border-radius:99px;transition:width .3s}
+.footer{text-align:center;color:var(--muted);font-size:11px;margin-top:28px}
+@media(max-width:680px){.grid{grid-template-columns:1fr}.history{grid-column:auto}.stats{grid-template-columns:1fr 1fr}.hero h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand">Kept <span>It.</span></div>
+  <div class="small">A little record of the money you chose to keep.</div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Money kept this month</div>
+  <h1 id="monthTotal">$0.00</h1>
+  <p id="monthWins">0 wins this month</p>
+  <div class="goal">
+    <div class="small"><span id="goalText">Monthly goal: $500</span></div>
+    <div class="goalbar"><div class="goalfill" id="goalFill"></div></div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat"><span class="small">This week</span><b id="weekTotal">$0</b></div>
+  <div class="stat"><span class="small">This month</span><b id="monthStat">$0</b></div>
+  <div class="stat"><span class="small">This year</span><b id="yearTotal">$0</b></div>
+  <div class="stat"><span class="small">All time</span><b id="allTotal">$0</b></div>
+</section>
+
+<div class="grid">
+<section class="card">
+  <h2>Log a win</h2>
+  <p>Record the moment you decided to keep your money.</p>
+
+  <div class="toggle">
+    <button id="buyTab" class="active" onclick="setType('buy')">🛍️ Didn't buy</button>
+    <button id="foodTab" onclick="setType('food')">🍕 Didn't eat out</button>
+  </div>
+
+  <div id="buyForm">
+    <label>What did you almost buy?</label>
+    <input id="item" placeholder="e.g. Target dress">
+    <label>How much?</label>
+    <input id="price" type="number" min="0" step="0.01" placeholder="0.00">
+    <label>Optional note</label>
+    <textarea id="note" placeholder="Why did you decide not to?"></textarea>
+  </div>
+
+  <div id="foodForm" class="hidden">
+    <label>What would you have eaten?</label>
+    <input id="meal" placeholder="e.g. Chick-fil-A for dinner">
+    <label>What would it have cost?</label>
+    <select id="foodCost" onchange="toggleCustom()">
+      <option value="20">$20</option>
+      <option value="35">$35</option>
+      <option value="50">$50</option>
+      <option value="75">$75</option>
+      <option value="100">$100</option>
+      <option value="custom">Enter custom amount…</option>
+    </select>
+    <div id="customWrap" class="hidden">
+      <label>Custom amount</label>
+      <input id="customCost" type="number" min="0" step="0.01" placeholder="0.00">
+    </div>
+    <label>Optional note</label>
+    <textarea id="foodNote" placeholder="What did you eat instead?"></textarea>
+  </div>
+
+  <button class="primary" onclick="addWin()">I KEPT THE MONEY →</button>
+</section>
+
+<section class="card">
+  <h2>Your bigger picture</h2>
+  <p>Every little decision counts.</p>
+  <div style="padding:8px 0 15px">
+    <div class="small">Purchases avoided</div>
+    <div style="font:500 31px Georgia;margin-top:4px" id="buyCount">0</div>
+  </div>
+  <div style="padding:15px 0;border-top:1px solid var(--line)">
+    <div class="small">Meals kept at home</div>
+    <div style="font:500 31px Georgia;margin-top:4px" id="foodCount">0</div>
+  </div>
+  <div style="padding:15px 0;border-top:1px solid var(--line)">
+    <div class="small">Average win</div>
+    <div style="font:500 31px Georgia;margin-top:4px" id="avgWin">$0</div>
+  </div>
+</section>
+
+<section class="card history">
+  <h2>Your wins</h2>
+  <p>The things you almost spent money on — and chose not to.</p>
+  <div id="history"></div>
+</section>
+</div>
+<div class="footer">Your entries are saved in this browser on this device.</div>
+</div>
+
+<script>
+let type='buy';
+let entries=JSON.parse(localStorage.getItem('keptItEntries')||'[]');
+
+function setType(t){
+  type=t;
+  document.getElementById('buyTab').classList.toggle('active',t==='buy');
+  document.getElementById('foodTab').classList.toggle('active',t==='food');
+  document.getElementById('buyForm').classList.toggle('hidden',t!=='buy');
+  document.getElementById('foodForm').classList.toggle('hidden',t!=='food');
+}
+function toggleCustom(){document.getElementById('customWrap').classList.toggle('hidden',document.getElementById('foodCost').value!=='custom')}
+function money(n){return n.toLocaleString('en-US',{style:'currency',currency:'USD'})}
+function startOfWeek(d){
+  let x=new Date(d), day=x.getDay(); x.setHours(0,0,0,0); x.setDate(x.getDate()-(day===0?6:day-1)); return x;
+}
+function addWin(){
+  let name, amount, note='';
+  if(type==='buy'){
+    name=document.getElementById('item').value.trim(); amount=parseFloat(document.getElementById('price').value); note=document.getElementById('note').value.trim();
+  }else{
+    name=document.getElementById('meal').value.trim(); let v=document.getElementById('foodCost').value;
+    amount=v==='custom'?parseFloat(document.getElementById('customCost').value):parseFloat(v); note=document.getElementById('foodNote').value.trim();
+  }
+  if(!name || !amount || amount<=0){alert('Add what you skipped and the amount.');return}
+  entries.unshift({id:Date.now(),type,name,amount,note,date:new Date().toISOString()});
+  localStorage.setItem('keptItEntries',JSON.stringify(entries));
+  ['item','price','note','meal','customCost','foodNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('foodCost').value='20'; toggleCustom(); render();
+}
+function render(){
+  let now=new Date(), week=startOfWeek(now), month=new Date(now.getFullYear(),now.getMonth(),1), year=new Date(now.getFullYear(),0,1);
+  let total=e=>e.reduce((s,x)=>s+x.amount,0);
+  let w=entries.filter(e=>new Date(e.date)>=week), m=entries.filter(e=>new Date(e.date)>=month), y=entries.filter(e=>new Date(e.date)>=year);
+  document.getElementById('weekTotal').textContent=money(total(w));
+  document.getElementById('monthTotal').textContent=money(total(m));
+  document.getElementById('monthStat').textContent=money(total(m));
+  document.getElementById('yearTotal').textContent=money(total(y));
+  document.getElementById('allTotal').textContent=money(total(entries));
+  document.getElementById('monthWins').textContent=`${m.length} win${m.length===1?'':'s'} this month`;
+  document.getElementById('buyCount').textContent=entries.filter(e=>e.type==='buy').length;
+  document.getElementById('foodCount').textContent=entries.filter(e=>e.type==='food').length;
+  document.getElementById('avgWin').textContent=money(entries.length?total(entries)/entries.length:0);
+  let pct=Math.min(100,total(m)/500*100); document.getElementById('goalFill').style.width=pct+'%';
+  let h=document.getElementById('history');
+  if(!entries.length){h.innerHTML='<div class="empty">Your first win is waiting here. 🌿</div>';return}
+  h.innerHTML=entries.slice(0,30).map(e=>{
+    let d=new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="entry"><div><div class="entry-title">${e.type==='food'?'🍕':'🛍️'} ${escapeHtml(e.name)}</div><div class="entry-meta">${d}${e.note?' · '+escapeHtml(e.note):''}</div></div><div class="amount">+${money(e.amount)}</div></div>`;
+  }).join('');
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+render();
+</script>
+</body>
+</html>
